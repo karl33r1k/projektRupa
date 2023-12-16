@@ -10,6 +10,107 @@ import pygame
 from sys import exit
 from math import ceil
 from random import randint
+
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        player_walk1 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_1.png')
+        player_Walk1 = pygame.transform.scale(player_walk1,(96,96))
+        player_walk2 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_2.png')
+        player_Walk2 = pygame.transform.scale(player_walk2,(96,96))
+        player_walk3 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_3.png')
+        player_Walk3 = pygame.transform.scale(player_walk3,(96,96))
+        player_walk4 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_4.png')
+        player_Walk4 = pygame.transform.scale(player_walk4,(96,96))
+        player_walk5 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_5.png')
+        player_Walk5 = pygame.transform.scale(player_walk5,(96,96))
+        player_walk6 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_6.png')
+        player_Walk6 = pygame.transform.scale(player_walk6,(96,96))
+        self.player_walk = [player_Walk1,player_Walk2,player_Walk3,player_Walk4,player_Walk5,player_Walk6]
+
+        self.player_index = 0
+        player_jump = player_walk1 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Jump_1.png')
+        self.player_jump = pygame.transform.scale(player_jump,(96,96))
+
+
+
+        self.image = self.player_walk[self.player_index]
+        self.rect = self.image.get_rect(midbottom = (200,600))
+        self.gravity = 0
+
+    def player_input(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_SPACE] and self.rect.bottom >= PLAYER_HEIGHT:
+            self.gravity = -35
+        if keys[pygame.MOUSEBUTTONDOWN] and self.rect.bottom >= PLAYER_HEIGHT:
+            self.gravity = -35
+        if keys[pygame.K_s] and self.rect.bottom < PLAYER_HEIGHT:
+            self.gravity = 50
+
+    def apply_gravity(self):
+        self.gravity += 1
+        self.rect.y += self.gravity
+        if self.rect.bottom >= PLAYER_HEIGHT:
+            self.rect.bottom = PLAYER_HEIGHT
+
+    def animation(self):
+        if self.rect.bottom < PLAYER_HEIGHT:
+            self.image = self.player_jump
+        else:
+            self.player_index += 0.1
+            if self.player_index >= len(self.player_walk):
+                self.player_index = 0
+            self.image = self.player_walk[int(self.player_index)]
+
+    def update(self):
+        self.player_input()
+        self.apply_gravity()
+        self.animation()
+
+
+
+class Obstacle(pygame.sprite.Sprite):
+    def __init__(self,obstacletype):
+        super().__init__()
+
+        if obstacletype == 'bee':
+            bee_fly1 = pygame.image.load('pildid/Maincharacters/bee_fly.png')
+            bee_fly2 = pygame.image.load('pildid/Maincharacters/bee.png')
+            self.frames = [bee_fly1,bee_fly2]
+            y_position = 500
+        elif obstacletype == "bat":
+            bat_fly1 = pygame.image.load('pildid/Maincharacters/bat_fly.png')
+            bat_fly2 = pygame.image.load('pildid/Maincharacters/bat_hang.png')
+            self.frames = [bat_fly1,bat_fly2]
+            y_position = 400
+        elif obstacletype == "barnacle":
+            self.frames = pygame.image.load('pildid/Maincharacters/barnacle_bite.png')
+            y_position = 601
+        elif obstacletype == "ladybug":
+            ladybug_walk1 = pygame.image.load('pildid/Maincharacters/ladyBug.png')
+            ladybug_walk2 = pygame.image.load('pildid/Maincharacters/ladyBug_walk.png')
+            self.frames = [ladybug_walk1,ladybug_walk2]
+            y_position = 600
+        self.animation_index = 0
+        self.image = self.frames[self.animation_index]
+        self.rect = self.image.get_rect(midbottom = (randint(1100,1400),y_position))
+
+    def animation(self):
+        self.animation_index += 0.1
+        if self.animation_index >= len(self.frames):
+            self.animation_index = 0
+        self.image = self.frames[int(self.animation_index)]
+
+
+
+    def update(self):
+        self.animation()
+        self.rect.x -= 5
+
+
+
+
+
 SCREEN_WIDTH = 1100
 SCREEN_HEIGHT = 800
 FPS = 60
@@ -71,6 +172,18 @@ pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
 pygame.display.set_caption("Jooksja")
 clock = pygame.time.Clock()
+
+#Sprite grupid
+player = pygame.sprite.GroupSingle() #Kuna Player on ainuke yksus, siis GroupSingle
+player.add(Player())
+
+obstacle_group = pygame.sprite.Group() #Kuna mitu yksust, siis vaja Group ning ei kasuta "add" kohe, sest tahame, et timer "triggeriks" obstaclesid
+
+
+
+
+
+
 
 #Tausta pildi info
 background1 = pygame.image.load('pildid/taust/background1.png')
@@ -203,6 +316,7 @@ while True:
 
 
             if event.type == obstacle_timer:
+                obstacle_group.add(Obstacle('bat'))
                 randomnumber = randint(1,5)
                 if randomnumber == 1:
                     obstacle_rect_list.append(bat_fly1.get_rect(bottomright = (randint(1100,1400),400)))
@@ -270,6 +384,12 @@ while True:
 
         player_animation()
         screen.blit(player_surface,player_rect)
+
+        player.draw(screen)
+        player.update()
+        obstacle_group.draw(screen)
+        obstacle_group.update()
+
 
 
         obstacle_rect_list = obstaclemovement(obstacle_rect_list)
