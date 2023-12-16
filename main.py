@@ -1,3 +1,11 @@
+# Projekt Rupa, autor Karl Eerik Vaidla
+# Mängu loomiseks on vaadatud erinevaid videoõpetusi
+#
+#
+
+
+
+
 import pygame
 from sys import exit
 from math import ceil
@@ -14,7 +22,7 @@ def timer():
     aeg_rect = aeg_surface.get_rect(center = (1000,100))
     screen.blit(aeg_surface,aeg_rect)
 
-def player_animation():
+def player_animation(): #Funktsiooni loogika on loodud youtube:Clear Code poolt
     global player_surface, player_index
 
     if player_rect.bottom < PLAYER_HEIGHT:
@@ -26,20 +34,20 @@ def player_animation():
         player_surface = player_walk[int(player_index)]
 
 
-def obstaclemovement(obstacle_list):
+def obstaclemovement(obstacle_list): #Funktsiooni loogika on loodud youtube:Clear Code poolt
     if obstacle_list:
         for obstacle_rect in obstacle_list:
             obstacle_rect.x -= 5
             
             
             if obstacle_rect.bottom == 600:
-                screen.blit(frog_jump1,obstacle_rect)
+                screen.blit(frog_jump_surface,obstacle_rect)
             
 
             elif obstacle_rect.bottom == 500:
-                screen.blit(bat_fly1,obstacle_rect) 
+                screen.blit(bat_fly_surface,obstacle_rect)  #selleks, et animeeritud oleks, on vaja asendada esimesele kohale surface
             elif obstacle_rect.bottom == 400:
-                screen.blit(bee_fly1,obstacle_rect)
+                screen.blit(bee_fly_surface,obstacle_rect)
             if obstacle_rect.bottom == 601:
                 screen.blit(barnacle1,obstacle_rect) 
 
@@ -50,10 +58,12 @@ def obstaclemovement(obstacle_list):
     else:
         return []
 
-#def collisions(player,obstacles):
-#    if obstacles:
-#        for obstacle_rect in obstacles:
-
+def collisions(player,obstacles):
+    if obstacles:
+        for obstacle_rect in obstacles:
+            if player.colliderect(obstacle_rect):
+                return False
+    return True
 
 
 
@@ -112,15 +122,21 @@ player_gravitatsioon = 0
 #Vaenlaste pildid
 bat_fly1 = pygame.image.load('pildid/Maincharacters/bat_fly.png')
 bat_fly2 = pygame.image.load('pildid/Maincharacters/bat_hang.png')
-
+bat_fly = [bat_fly1,bat_fly2]
+bat_fly_index = 0
+bat_fly_surface = bat_fly[bat_fly_index]
 
 bee_fly1 = pygame.image.load('pildid/Maincharacters/bee_fly.png')
-
-
 bee_fly2 = pygame.image.load('pildid/Maincharacters/bee.png')
+bee_fly = [bee_fly1,bee_fly2]
+bee_fly_index = 0
+bee_fly_surface = bee_fly[bee_fly_index]
 
 frog_jump1 = pygame.image.load('pildid/Maincharacters/frog.png')
 frog_jump2 = pygame.image.load('pildid/Maincharacters/frog_leap.png')
+frog_jump = [frog_jump1,frog_jump2]
+frog_jump_index = 0
+frog_jump_surface = frog_jump[frog_jump_index]
 
 barnacle1 = pygame.image.load('pildid/Maincharacters/barnacle_bite.png')
 
@@ -150,7 +166,15 @@ gravitatsioon = 0
 game_active = False
 
 obstacle_timer = pygame.USEREVENT + 1 #+1 vaja selleks, kuna pygame endal ka vaja evente.
-pygame.time.set_timer(obstacle_timer,1000)
+pygame.time.set_timer(obstacle_timer,1900)
+
+bee_animation_timer = pygame.USEREVENT + 2
+pygame.time.set_timer(bee_animation_timer,300)
+bat_animation_timer = pygame.USEREVENT + 3
+pygame.time.set_timer(bat_animation_timer,200)
+frog_animation_timer = pygame.USEREVENT + 4
+pygame.time.set_timer(frog_animation_timer,600)
+
 
 while True:
     for event in pygame.event.get():
@@ -172,6 +196,7 @@ while True:
                     player_gravitatsioon = -35
                 if event.key == pygame.K_s and player_rect.bottom < PLAYER_HEIGHT:
                     player_gravitatsioon = 50
+            
 
 
 
@@ -186,6 +211,28 @@ while True:
                 elif randomnumber == 4:
                     obstacle_rect_list.append(barnacle1.get_rect(bottomright = (randint(1100,1400),601)))
 
+
+            if event.type == bee_animation_timer:
+                if bee_fly_index == 0:
+                    bee_fly_index = 1
+                else:
+                    bee_fly_index = 0
+                bee_fly_surface = bee_fly[bee_fly_index]
+            if event.type == bat_animation_timer:
+                if bat_fly_index == 0:
+                    bat_fly_index = 1
+                else:
+                    bat_fly_index = 0
+                bat_fly_surface = bat_fly[bat_fly_index]
+                
+            if event.type == frog_animation_timer:
+                if frog_jump_index == 0:
+                    frog_jump_index = 1
+                else:
+                    frog_jump_index = 0
+            frog_jump_surface = frog_jump[frog_jump_index] 
+                    
+                    
             
         else:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
@@ -198,7 +245,7 @@ while True:
 
 
     if game_active:
-        for i in range(0,tiles1): #Paneb pildid üksteise kõrvale, järgisin tutoriali Coding With Russ "Infinite Scrolling Background"
+        for i in range(0,tiles1): #Paneb pildid üksteise kõrvale, loogika on loodud youtube:Coding With Russ
             screen.blit(background1,(i * bg1_width + scroll,0))
             screen.blit(background2,(i * bg2_width + scroll,0))
             screen.blit(background3,(i * bg3_width + scroll,0))
@@ -222,13 +269,17 @@ while True:
         player_animation()
         screen.blit(player_surface,player_rect)
 
-        obstacle_rect_list = obstaclemovement(obstacle_rect_list)
 
+        obstacle_rect_list = obstaclemovement(obstacle_rect_list)
+        game_active = collisions(player_rect,obstacle_rect_list)
         timer()
         
     else:
         screen.fill(("Lightblue"))
         screen.blit(player_stand,(200,300))
+        obstacle_rect_list.clear() #Selleks, et peale collisioni saaks uuesti mängu tööle panna
+        player_rect.midbottom = (80,300)
+        player_gravitatsioon = 0
 
     
     
