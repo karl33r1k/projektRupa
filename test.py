@@ -9,7 +9,7 @@
 import pygame
 from sys import exit
 from math import ceil
-from random import randint
+from random import randint,choice
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -84,7 +84,8 @@ class Obstacle(pygame.sprite.Sprite):
             self.frames = [bat_fly1,bat_fly2]
             y_position = 400
         elif obstacletype == "barnacle":
-            self.frames = pygame.image.load('pildid/Maincharacters/barnacle_bite.png')
+            barnacle = pygame.image.load('pildid/Maincharacters/barnacle_bite.png')
+            self.frames = [barnacle]
             y_position = 601
         elif obstacletype == "ladybug":
             ladybug_walk1 = pygame.image.load('pildid/Maincharacters/ladyBug.png')
@@ -101,12 +102,14 @@ class Obstacle(pygame.sprite.Sprite):
             self.animation_index = 0
         self.image = self.frames[int(self.animation_index)]
 
-
+    def destroy(self):
+        if self.rect.x <= -100:
+            self.kill()
 
     def update(self):
         self.animation()
         self.rect.x -= 5
-
+        self.destroy()
 
 
 
@@ -123,49 +126,12 @@ def timer():
     aeg_rect = aeg_surface.get_rect(center = (1000,100))
     screen.blit(aeg_surface,aeg_rect)
 
-def player_animation(): #Funktsiooni loogika on loodud youtube:Clear Code poolt
-    global player_surface, player_index
-
-    if player_rect.bottom < PLAYER_HEIGHT:
-        player_surface = player_jump
+def obstaclecollision():
+    if pygame.sprite.spritecollide(player.sprite,obstacle_group,False):
+        obstacle_group.empty()
+        return False
     else:
-        player_index += 0.1
-        if player_index >= len(player_walk):
-            player_index = 0
-        player_surface = player_walk[int(player_index)]
-
-
-def obstaclemovement(obstacle_list): #Funktsiooni loogika on loodud youtube:Clear Code poolt
-    if obstacle_list:
-        for obstacle_rect in obstacle_list:
-            obstacle_rect.x -= 5
-            
-            
-            if obstacle_rect.bottom == 600:
-                screen.blit(ladybug_walk_surface,obstacle_rect)
-            
-
-            elif obstacle_rect.bottom == 500:
-                screen.blit(bat_fly_surface,obstacle_rect)  #selleks, et animeeritud oleks, on vaja asendada esimesele kohale surface
-            elif obstacle_rect.bottom == 400:
-                screen.blit(bee_fly_surface,obstacle_rect)
-            if obstacle_rect.bottom == 601:
-                screen.blit(barnacle1,obstacle_rect) 
-
-        obstacle_list = [obstacle for obstacle in obstacle_list if obstacle.x > -100] #Võtab listist ära, kui üle läheb üle -100, selleks, et mäng paremini töötaks
-
-
-        return obstacle_list
-    else:
-        return []
-
-def collisions(player,obstacles):
-    if obstacles:
-        for obstacle_rect in obstacles:
-            if player.colliderect(obstacle_rect):
-                return False
-    return True
-
+        return True
 
 
 pygame.init()
@@ -208,31 +174,14 @@ surface = pygame.transform.scale(surface,(96,96))
 water_surface = pygame.Surface((1100,200))
 water_surface.fill('Lightblue')
 
-#player info
-player_walk1 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_1.png')
-player_Walk1 = pygame.transform.scale(player_walk1,(96,96))
-player_walk2 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_2.png')
-player_Walk2 = pygame.transform.scale(player_walk2,(96,96))
-player_walk3 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_3.png')
-player_Walk3 = pygame.transform.scale(player_walk3,(96,96))
-player_walk4 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_4.png')
-player_Walk4 = pygame.transform.scale(player_walk4,(96,96))
-player_walk5 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_5.png')
-player_Walk5 = pygame.transform.scale(player_walk5,(96,96))
-player_walk6 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_6.png')
-player_Walk6 = pygame.transform.scale(player_walk6,(96,96))
-player_walk = [player_Walk1,player_Walk1,player_Walk3,player_Walk4,player_Walk5,player_Walk6]
 
 
-player_index = 0
-player_jump = player_walk1 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Jump_1.png')
-player_jump = pygame.transform.scale(player_jump,(96,96))
-player_surface = player_walk[player_index]
-player_rect = player_surface.get_rect(midbottom = (300,PLAYER_HEIGHT))
+#Playeri valik
 player_stand = pygame.image.load('pildid/1 Pink_Monster/Pink_Monster.png')
 player_stand = pygame.transform.scale(player_stand,(96,96))
 player_gravitatsioon = 0
-#Vaenlaste pildid
+
+#vaenlased
 bat_fly1 = pygame.image.load('pildid/Maincharacters/bat_fly.png')
 bat_fly2 = pygame.image.load('pildid/Maincharacters/bat_hang.png')
 bat_fly = [bat_fly1,bat_fly2]
@@ -253,7 +202,8 @@ ladybug_walk_surface = ladybug_walk[ladybug_walk_index]
 
 barnacle1 = pygame.image.load('pildid/Maincharacters/barnacle_bite.png')
 
-obstacle_rect_list = []
+
+
 
 #Mündi pildid
 coin1 = pygame.image.load('pildid/Maincharacters/coin1_16x16.png')
@@ -302,31 +252,12 @@ while True:
                 exit()
 
 
-        if game_active:
-            if event.type == pygame.MOUSEBUTTONDOWN and player_rect.bottom >= PLAYER_HEIGHT:
-                player_gravitatsioon = -35
-
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and player_rect.bottom >= PLAYER_HEIGHT:
-                    player_gravitatsioon = -35
-                if event.key == pygame.K_s and player_rect.bottom < PLAYER_HEIGHT:
-                    player_gravitatsioon = 50
             
 
 
-
+        if game_active:
             if event.type == obstacle_timer:
-                obstacle_group.add(Obstacle('bat'))
-                randomnumber = randint(1,5)
-                if randomnumber == 1:
-                    obstacle_rect_list.append(bat_fly1.get_rect(bottomright = (randint(1100,1400),400)))
-                elif randomnumber == 2:
-                    obstacle_rect_list.append(bee_fly1.get_rect(bottomright = (randint(1100,1400),500)))
-                elif randomnumber == 3:
-                    obstacle_rect_list.append(ladybug_walk1.get_rect(bottomright = (randint(1100,1400),600)))
-                elif randomnumber == 4:
-                    obstacle_rect_list.append(barnacle1.get_rect(bottomright = (randint(1100,1400),601)))
-
+                obstacle_group.add(Obstacle(choice(['bee','bat','ladybug','barnacle'])))
 
             if event.type == bee_animation_timer:
                 if bee_fly_index == 0:
@@ -376,14 +307,14 @@ while True:
             for j in range(0,200,100):
                 screen.blit(surface,(i,600 + j))
         
-        player_gravitatsioon += 1
-        player_rect.y += player_gravitatsioon
+        # player_gravitatsioon += 1
+        # player_rect.y += player_gravitatsioon
 
-        if player_rect.bottom >= PLAYER_HEIGHT:
-            player_rect.bottom = PLAYER_HEIGHT
+        # if player_rect.bottom >= PLAYER_HEIGHT:
+        #     player_rect.bottom = PLAYER_HEIGHT
 
-        player_animation()
-        screen.blit(player_surface,player_rect)
+        # player_animation()
+        # screen.blit(player_surface,player_rect)
 
         player.draw(screen)
         player.update()
@@ -392,15 +323,13 @@ while True:
 
 
 
-        obstacle_rect_list = obstaclemovement(obstacle_rect_list)
-        game_active = collisions(player_rect,obstacle_rect_list)
+        # obstacle_rect_list = obstaclemovement(obstacle_rect_list)
+        game_active = obstaclecollision()
         timer()
         
     else:
         screen.fill(("Lightblue"))
         screen.blit(player_stand,(200,300))
-        obstacle_rect_list.clear() #Selleks, et peale collisioni saaks uuesti mängu tööle panna
-        player_rect.midbottom = (80,300)
         player_gravitatsioon = 0
 
     
