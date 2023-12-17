@@ -1,6 +1,6 @@
 # Projekt Rupa, autor Karl Eerik Vaidla
 # Mängu loomiseks on vaadatud erinevaid videoõpetusi
-#
+# 
 #
 
 
@@ -10,6 +10,7 @@ import pygame
 from sys import exit
 from math import ceil
 from random import randint,choice
+from time import sleep
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -111,6 +112,48 @@ class Obstacle(pygame.sprite.Sprite):
         self.rect.x -= 5
         self.destroy()
 
+class Coin(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        coin1 = pygame.image.load('pildid/Maincharacters/coin1_16x16.png')
+        coin1 = pygame.transform.scale(coin1,(64,64))
+        coin2 = pygame.image.load('pildid/Maincharacters/coin2_16x16.png')
+        coin2 = pygame.transform.scale(coin2,(64,64))
+        coin3 = pygame.image.load('pildid/Maincharacters/coin3_16x16.png')
+        coin3 = pygame.transform.scale(coin3,(64,64))
+        coin4 = pygame.image.load('pildid/Maincharacters/coin4_16x16.png')
+        coin4 = pygame.transform.scale(coin4,(64,64))
+        coin5 = pygame.image.load('pildid/Maincharacters/coin5_16x16.png')
+        coin5 = pygame.transform.scale(coin5,(64,64))
+        coin6 = pygame.image.load('pildid/Maincharacters/coin6_16x16.png')
+        coin6 = pygame.transform.scale(coin6,(64,64))
+        coin7 = pygame.image.load('pildid/Maincharacters/coin7_16x16.png')
+        coin7 = pygame.transform.scale(coin7,(64,64))
+        coin8 = pygame.image.load('pildid/Maincharacters/coin8_16x16.png')
+        coin8 = pygame.transform.scale(coin8,(64,64))
+        coin9 = pygame.image.load('pildid/Maincharacters/coin9_16x16.png')
+        coin9 = pygame.transform.scale(coin9,(64,64))
+        coin10 = pygame.image.load('pildid/Maincharacters/coin10_16x16.png')
+        coin10 = pygame.transform.scale(coin10,(64,64))
+        self.coins = [coin1,coin2,coin3,coin4,coin5,coin6,coin7,coin8,coin9,coin10]
+        self.coin_index = 0
+        y_position = 600
+
+        self.image = self.coins[self.coin_index]
+        self.rect = self.image.get_rect(midbottom = (randint(1200,1300),y_position))
+
+    def animation(self):
+        self.coin_index += 0.1
+        if self.coin_index >= len(self.coins):
+            self.coin_index = 0
+        self.image = self.coins[int(self.coin_index)]
+    def destroy(self):
+        if self.rect.x <= -100:
+            self.kill()
+    def update(self):
+        self.animation()
+        self.rect.x -= 5
+        self.destroy()
 
 
 
@@ -125,10 +168,24 @@ def timer():
     aeg_surface = font2.render(f"Aeg: {uusaeg}",False,"Red")
     aeg_rect = aeg_surface.get_rect(center = (1000,100))
     screen.blit(aeg_surface,aeg_rect)
+#Punktide teksti kuvamine
+def coinvalue():
+    coinpoint_surface = font2.render(f"Points: {coinpoint}",False,"Blue")
+    coinpoint_rect = coinpoint_surface.get_rect(center = (1000,400)) 
+    screen.blit(coinpoint_surface,coinpoint_rect)
 
+#Koletiste collision funktsioon
 def obstaclecollision():
-    if pygame.sprite.spritecollide(player.sprite,obstacle_group,False):
+    if pygame.sprite.spritecollide(player.sprite,obstacle_group,False,pygame.sprite.collide_mask):
         obstacle_group.empty()
+        return False
+    else:
+        return True
+#Mündi collision funktsioon
+def coincollision():
+    global coinpoint
+    if pygame.sprite.spritecollide(player.sprite,coinsgrp,True,pygame.sprite.collide_mask): #Kolmas faktor määrab selle, et coin kaob kokkupuutel ära, neljas faktor teeb collisioni täpsemaks
+        coinpoint += 100
         return False
     else:
         return True
@@ -145,7 +202,8 @@ player.add(Player())
 
 obstacle_group = pygame.sprite.Group() #Kuna mitu yksust, siis vaja Group ning ei kasuta "add" kohe, sest tahame, et timer "triggeriks" obstaclesid
 
-
+coinsgrp = pygame.sprite.GroupSingle()
+coinsgrp.add(Coin())
 
 
 
@@ -202,31 +260,14 @@ ladybug_walk_surface = ladybug_walk[ladybug_walk_index]
 
 barnacle1 = pygame.image.load('pildid/Maincharacters/barnacle_bite.png')
 
-
-
-
-#Mündi pildid
-coin1 = pygame.image.load('pildid/Maincharacters/coin1_16x16.png')
-coin2 = pygame.image.load('pildid/Maincharacters/coin2_16x16.png')
-coin3 = pygame.image.load('pildid/Maincharacters/coin3_16x16.png')
-coin4 = pygame.image.load('pildid/Maincharacters/coin4_16x16.png')
-coin5 = pygame.image.load('pildid/Maincharacters/coin5_16x16.png')
-coin6 = pygame.image.load('pildid/Maincharacters/coin6_16x16.png')
-coin7 = pygame.image.load('pildid/Maincharacters/coin7_16x16.png')
-coin8 = pygame.image.load('pildid/Maincharacters/coin8_16x16.png')
-coin9 = pygame.image.load('pildid/Maincharacters/coin9_16x16.png')
-coin10 = pygame.image.load('pildid/Maincharacters/coin10_16x16.png')
-coin = [coin1,coin2,coin3,coin4,coin5,coin6,coin7,coin8,coin9,coin10]
-
-
 #Muutujad
 scroll = 0
 tiles1 = (ceil(SCREEN_WIDTH / bg1_width)) + 1
 tiles2 = (ceil(SCREEN_WIDTH / bg2_width)) + 1
 tiles3 = (ceil(SCREEN_WIDTH / bg3_width)) + 1
 
+coinpoint = 0
 starttime = 0
-aeg = 0
 gravitatsioon = 0
 game_active = False
 
@@ -239,7 +280,8 @@ bat_animation_timer = pygame.USEREVENT + 3
 pygame.time.set_timer(bat_animation_timer,200)
 ladybug_animation_timer = pygame.USEREVENT + 4
 pygame.time.set_timer(ladybug_animation_timer,1500)
-
+coin_animation_timer = pygame.USEREVENT + 5
+pygame.time.set_timer(coin_animation_timer,8000)
 
 while True:
     for event in pygame.event.get():
@@ -251,45 +293,16 @@ while True:
                 pygame.quit()
                 exit()
 
-
-            
-
-
         if game_active:
             if event.type == obstacle_timer:
                 obstacle_group.add(Obstacle(choice(['bee','bat','ladybug','barnacle'])))
-
-            if event.type == bee_animation_timer:
-                if bee_fly_index == 0:
-                    bee_fly_index = 1
-                else:
-                    bee_fly_index = 0
-                bee_fly_surface = bee_fly[bee_fly_index]
-            if event.type == bat_animation_timer:
-                if bat_fly_index == 0:
-                    bat_fly_index = 1
-                else:
-                    bat_fly_index = 0
-                bat_fly_surface = bat_fly[bat_fly_index]
-                
-            if event.type == ladybug_animation_timer:
-                if ladybug_walk_index == 0:
-                    ladybug_walk_index = 1
-                else:
-                    ladybug_walk_index = 0
-            ladybug_walk_surface = ladybug_walk[ladybug_walk_index] 
-                    
-                    
+            if event.type == coin_animation_timer:
+                coinsgrp.add(Coin())
             
         else:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 game_active = True
                 starttime = int(pygame.time.get_ticks()/1000)
-
-
-
-                
-
 
     if game_active:
         for i in range(0,tiles1): #Paneb pildid üksteise kõrvale, loogika on loodud youtube:Coding With Russ
@@ -306,35 +319,23 @@ while True:
         for i in range(0,SCREEN_WIDTH,100):
             for j in range(0,200,100):
                 screen.blit(surface,(i,600 + j))
-        
-        # player_gravitatsioon += 1
-        # player_rect.y += player_gravitatsioon
-
-        # if player_rect.bottom >= PLAYER_HEIGHT:
-        #     player_rect.bottom = PLAYER_HEIGHT
-
-        # player_animation()
-        # screen.blit(player_surface,player_rect)
 
         player.draw(screen)
         player.update()
         obstacle_group.draw(screen)
         obstacle_group.update()
+        coinsgrp.draw(screen)
+        coinsgrp.update()
 
-
-
-        # obstacle_rect_list = obstaclemovement(obstacle_rect_list)
+        coincollision()
         game_active = obstaclecollision()
         timer()
+        coinvalue()
         
     else:
         screen.fill(("Lightblue"))
         screen.blit(player_stand,(200,300))
-        player_gravitatsioon = 0
-
-    
-    
-    
+        coinpoint = 0
 
     pygame.display.update()
     clock.tick(FPS)
