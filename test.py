@@ -17,7 +17,7 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
         
         if playertype == 1:
-            player_walk1 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_1.png')
+            player_walk1 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_1.png') #Oleks saanud kasutada ka spritesheeti
             player_Walk1 = pygame.transform.scale(player_walk1,(96,96))
             player_walk2 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_2.png')
             player_Walk2 = pygame.transform.scale(player_walk2,(96,96))
@@ -29,6 +29,8 @@ class Player(pygame.sprite.Sprite):
             player_Walk5 = pygame.transform.scale(player_walk5,(96,96))
             player_walk6 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_6.png')
             player_Walk6 = pygame.transform.scale(player_walk6,(96,96))
+            player_jump = player_walk1 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Jump_1.png')
+            self.player_jump = pygame.transform.scale(player_jump,(96,96))
             self.player_walk = [player_Walk1,player_Walk2,player_Walk3,player_Walk4,player_Walk5,player_Walk6]
         elif playertype == 2:
             player_walk1 = pygame.image.load('pildid/Maincharacters/Owlet_Monster_Run_1.png')
@@ -43,15 +45,27 @@ class Player(pygame.sprite.Sprite):
             player_Walk5 = pygame.transform.scale(player_walk5,(96,96))
             player_walk6 = pygame.image.load('pildid/Maincharacters/Owlet_Monster_Run_6.png')
             player_Walk6 = pygame.transform.scale(player_walk6,(96,96))
+            player_jump = player_walk1 = pygame.image.load('pildid/Maincharacters/Owlet_Monster_Jump_1.png')
+            self.player_jump = pygame.transform.scale(player_jump,(96,96))
             self.player_walk = [player_Walk1,player_Walk2,player_Walk3,player_Walk4,player_Walk5,player_Walk6]
-        #elif playertype == 3:
-        #elif playertype == 4:
+        elif playertype == 3:
+            player_walk1 = pygame.image.load('pildid/Maincharacters/Dude_Monster_Run_1.png')
+            player_Walk1 = pygame.transform.scale(player_walk1,(96,96))
+            player_walk2 = pygame.image.load('pildid/Maincharacters/Dude_Monster_Run_2.png')
+            player_Walk2 = pygame.transform.scale(player_walk2,(96,96))
+            player_walk3 = pygame.image.load('pildid/Maincharacters/Dude_Monster_Run_3.png')
+            player_Walk3 = pygame.transform.scale(player_walk3,(96,96))
+            player_walk4 = pygame.image.load('pildid/Maincharacters/Dude_Monster_Run_4.png')
+            player_Walk4 = pygame.transform.scale(player_walk4,(96,96))
+            player_walk5 = pygame.image.load('pildid/Maincharacters/Dude_Monster_Run_5.png')
+            player_Walk5 = pygame.transform.scale(player_walk5,(96,96))
+            player_walk6 = pygame.image.load('pildid/Maincharacters/Dude_Monster_Run_6.png')
+            player_Walk6 = pygame.transform.scale(player_walk6,(96,96))
+            player_jump = player_walk1 = pygame.image.load('pildid/Maincharacters/Dude_Monster_Jump_1.png')
+            self.player_jump = pygame.transform.scale(player_jump,(96,96))
+            self.player_walk = [player_Walk1,player_Walk2,player_Walk3,player_Walk4,player_Walk5,player_Walk6]
+    
         self.player_index = 0
-        player_jump = player_walk1 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Jump_1.png')
-        self.player_jump = pygame.transform.scale(player_jump,(96,96))
-
-
-
         self.image = self.player_walk[self.player_index]
         self.rect = self.image.get_rect(midbottom = (200,600))
         self.gravity = 0
@@ -215,7 +229,7 @@ clock = pygame.time.Clock()
 
 #Sprite grupid
 player = pygame.sprite.GroupSingle() #Kuna Player on ainuke yksus, siis GroupSingle
-player.add(Player(1 ))
+
 
 obstacle_group = pygame.sprite.Group() #Kuna mitu yksust, siis vaja Group ning ei kasuta "add" kohe, sest tahame, et timer "triggeriks" obstaclesid
 
@@ -233,7 +247,8 @@ background2 = pygame.image.load('pildid/taust/background2.png')
 background2 = pygame.transform.scale(background2,(1000,800))
 background3 = pygame.image.load('pildid/taust/background3.png')
 background3 = pygame.transform.scale(background3,(1000,800))
-
+ 
+ 
 bg1_width = background1.get_width()
 bg2_width = background2.get_width()
 bg3_width = background3.get_width()
@@ -254,9 +269,21 @@ water_surface.fill('Lightblue')
 #Playeri valik
 player_stand1 = pygame.image.load('pildid/1 Pink_Monster/Pink_Monster.png')
 player_stand1 = pygame.transform.scale(player_stand1,(96,96))
+playerstand_rect1 = player_stand1.get_rect(midtop = (416,200))
 
 player_stand2 = pygame.image.load('pildid/2 Owlet_Monster/Owlet_Monster.png')
 player_stand2 = pygame.transform.scale(player_stand2,(96,96))
+playerstand_rect2 = player_stand2.get_rect(midtop = (566,200))
+
+player_stand3 = pygame.image.load('pildid/3 Dude_Monster/Dude_Monster.png')
+player_stand3 = pygame.transform.scale(player_stand3,(96,96))
+playerstand_rect3 = player_stand3.get_rect(midtop = (716,200))
+
+#Menüü kastid
+def kast(x,y,x1,y1,color):
+    kast_surface = pygame.Surface((x,y))
+    kast_surface.fill(color)
+    screen.blit(kast_surface,(x1,y1))
 
 
 #vaenlased
@@ -312,6 +339,7 @@ while True:
             if event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 exit()
+            
 
         if game_active:
             if event.type == obstacle_timer:
@@ -320,10 +348,37 @@ while True:
                 coinsgrp.add(Coin())
             
         else:
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                game_active = True
-                starttime = int(pygame.time.get_ticks()/1000)
-
+            pos = pygame.mouse.get_pos()
+            if playerstand_rect1.collidepoint(pos):
+                if pygame.mouse.get_pressed() == (True,False,False):
+                    print(1)
+                    player.add(Player(1))
+                    game_active = True
+                    starttime = int(pygame.time.get_ticks()/1000)
+            if playerstand_rect2.collidepoint(pos):
+                if pygame.mouse.get_pressed() == (True,False,False):
+                    player.add(Player(2))
+                    game_active = True
+                    starttime = int(pygame.time.get_ticks()/1000)
+            if playerstand_rect3.collidepoint(pos):
+                if pygame.mouse.get_pressed() == (True,False,False):
+                    player.add(Player(3))
+                    game_active = True
+                    starttime = int(pygame.time.get_ticks()/1000)
+                    
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    player.add(Player(1))
+                    game_active = True
+                    starttime = int(pygame.time.get_ticks()/1000)
+                elif event.key == pygame.K_2:
+                    player.add(Player(2))
+                    game_active = True
+                    starttime = int(pygame.time.get_ticks()/1000)
+                elif event.key == pygame.K_3:
+                    player.add(Player(3))
+                    game_active = True
+                    starttime = int(pygame.time.get_ticks()/1000)
     if game_active:
         for i in range(0,tiles1): #Paneb pildid üksteise kõrvale, loogika on loodud youtube:Coding With Russ
             screen.blit(background1,(i * bg1_width + scroll,0))
@@ -354,9 +409,18 @@ while True:
         
     else:
         screen.fill(("lightgreen"))
-        screen.blit(player_stand1,(200,300))
+        kast(96,96,368,208,"Black")
+        kast(80,80,376,216,"#93E9BE")
 
+        kast(96,96,518,208,"Black")
+        kast(80,80,526,216,"#93E9BE")
 
+        kast(96,96,668,208,"Black")
+        kast(80,80,676,216,"#93E9BE")
+        screen.blit(player_stand1,playerstand_rect1)
+        screen.blit(player_stand2,playerstand_rect2)
+        screen.blit(player_stand3,playerstand_rect3)
+        
 
 
         coinpoint = 0
