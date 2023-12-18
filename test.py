@@ -13,22 +13,39 @@ from random import randint,choice
 from time import sleep
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self,playertype):
         super().__init__()
-        player_walk1 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_1.png')
-        player_Walk1 = pygame.transform.scale(player_walk1,(96,96))
-        player_walk2 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_2.png')
-        player_Walk2 = pygame.transform.scale(player_walk2,(96,96))
-        player_walk3 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_3.png')
-        player_Walk3 = pygame.transform.scale(player_walk3,(96,96))
-        player_walk4 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_4.png')
-        player_Walk4 = pygame.transform.scale(player_walk4,(96,96))
-        player_walk5 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_5.png')
-        player_Walk5 = pygame.transform.scale(player_walk5,(96,96))
-        player_walk6 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_6.png')
-        player_Walk6 = pygame.transform.scale(player_walk6,(96,96))
-        self.player_walk = [player_Walk1,player_Walk2,player_Walk3,player_Walk4,player_Walk5,player_Walk6]
-
+        
+        if playertype == 1:
+            player_walk1 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_1.png')
+            player_Walk1 = pygame.transform.scale(player_walk1,(96,96))
+            player_walk2 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_2.png')
+            player_Walk2 = pygame.transform.scale(player_walk2,(96,96))
+            player_walk3 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_3.png')
+            player_Walk3 = pygame.transform.scale(player_walk3,(96,96))
+            player_walk4 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_4.png')
+            player_Walk4 = pygame.transform.scale(player_walk4,(96,96))
+            player_walk5 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_5.png')
+            player_Walk5 = pygame.transform.scale(player_walk5,(96,96))
+            player_walk6 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Run_6.png')
+            player_Walk6 = pygame.transform.scale(player_walk6,(96,96))
+            self.player_walk = [player_Walk1,player_Walk2,player_Walk3,player_Walk4,player_Walk5,player_Walk6]
+        elif playertype == 2:
+            player_walk1 = pygame.image.load('pildid/Maincharacters/Owlet_Monster_Run_1.png')
+            player_Walk1 = pygame.transform.scale(player_walk1,(96,96))
+            player_walk2 = pygame.image.load('pildid/Maincharacters/Owlet_Monster_Run_2.png')
+            player_Walk2 = pygame.transform.scale(player_walk2,(96,96))
+            player_walk3 = pygame.image.load('pildid/Maincharacters/Owlet_Monster_Run_3.png')
+            player_Walk3 = pygame.transform.scale(player_walk3,(96,96))
+            player_walk4 = pygame.image.load('pildid/Maincharacters/Owlet_Monster_Run_4.png')
+            player_Walk4 = pygame.transform.scale(player_walk4,(96,96))
+            player_walk5 = pygame.image.load('pildid/Maincharacters/Owlet_Monster_Run_5.png')
+            player_Walk5 = pygame.transform.scale(player_walk5,(96,96))
+            player_walk6 = pygame.image.load('pildid/Maincharacters/Owlet_Monster_Run_6.png')
+            player_Walk6 = pygame.transform.scale(player_walk6,(96,96))
+            self.player_walk = [player_Walk1,player_Walk2,player_Walk3,player_Walk4,player_Walk5,player_Walk6]
+        #elif playertype == 3:
+        #elif playertype == 4:
         self.player_index = 0
         player_jump = player_walk1 = pygame.image.load('pildid/Maincharacters/Pink_Monster_Jump_1.png')
         self.player_jump = pygame.transform.scale(player_jump,(96,96))
@@ -198,7 +215,7 @@ clock = pygame.time.Clock()
 
 #Sprite grupid
 player = pygame.sprite.GroupSingle() #Kuna Player on ainuke yksus, siis GroupSingle
-player.add(Player())
+player.add(Player(1 ))
 
 obstacle_group = pygame.sprite.Group() #Kuna mitu yksust, siis vaja Group ning ei kasuta "add" kohe, sest tahame, et timer "triggeriks" obstaclesid
 
@@ -235,9 +252,12 @@ water_surface.fill('Lightblue')
 
 
 #Playeri valik
-player_stand = pygame.image.load('pildid/1 Pink_Monster/Pink_Monster.png')
-player_stand = pygame.transform.scale(player_stand,(96,96))
-player_gravitatsioon = 0
+player_stand1 = pygame.image.load('pildid/1 Pink_Monster/Pink_Monster.png')
+player_stand1 = pygame.transform.scale(player_stand1,(96,96))
+
+player_stand2 = pygame.image.load('pildid/2 Owlet_Monster/Owlet_Monster.png')
+player_stand2 = pygame.transform.scale(player_stand2,(96,96))
+
 
 #vaenlased
 bat_fly1 = pygame.image.load('pildid/Maincharacters/bat_fly.png')
@@ -333,9 +353,14 @@ while True:
         coinvalue()
         
     else:
-        screen.fill(("Lightblue"))
-        screen.blit(player_stand,(200,300))
+        screen.fill(("lightgreen"))
+        screen.blit(player_stand1,(200,300))
+
+
+
+
         coinpoint = 0
+        
 
     pygame.display.update()
     clock.tick(FPS)
