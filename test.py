@@ -196,13 +196,13 @@ PLAYER_HEIGHT = 605
 def timer():
     uusaeg = pygame.time.get_ticks() - starttime #Annab aja mängu algusest
     uusaeg = int(uusaeg/1000)
-    aeg_surface = font2.render(f"Aeg: {uusaeg}",False,"Red")
-    aeg_rect = aeg_surface.get_rect(center = (1000,100))
+    aeg_surface = font2.render(f"Time: {uusaeg}",False,"Red")
+    aeg_rect = aeg_surface.get_rect(center = (80,100))
     screen.blit(aeg_surface,aeg_rect)
 #Punktide teksti kuvamine
 def coinvalue():
     coinpoint_surface = font2.render(f"Points: {coinpoint}",False,"Blue")
-    coinpoint_rect = coinpoint_surface.get_rect(center = (1000,400)) 
+    coinpoint_rect = coinpoint_surface.get_rect(center = (110,150)) 
     screen.blit(coinpoint_surface,coinpoint_rect)
 
 #Koletiste collision funktsioon
@@ -224,7 +224,7 @@ def coincollision():
 
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
-pygame.display.set_caption("Jooksja")
+pygame.display.set_caption("Rupa Runner")
 clock = pygame.time.Clock()
 
 #Sprite grupid
@@ -256,6 +256,7 @@ bg3_width = background3.get_width()
 #Font info
 font1 = pygame.font.Font('Retro Gaming.ttf',50)
 font2 = pygame.font.Font('Retro Gaming.ttf',30)
+font3 = pygame.font.Font('Retro Gaming.ttf',45)
 
 #Maapinna info
 surface = pygame.image.load('pildid/Stone/maapind.png')
@@ -263,8 +264,6 @@ surface = pygame.transform.scale(surface,(96,96))
 
 water_surface = pygame.Surface((1100,200))
 water_surface.fill('Lightblue')
-
-
 
 #Playeri valik
 player_stand1 = pygame.image.load('pildid/1 Pink_Monster/Pink_Monster.png')
@@ -280,11 +279,20 @@ player_stand3 = pygame.transform.scale(player_stand3,(96,96))
 playerstand_rect3 = player_stand3.get_rect(midtop = (716,200))
 
 #Menüü kastid
+def text(fontsuurus,text,x,y,color):
+    font = pygame.font.Font('Retro Gaming.ttf',fontsuurus)
+    text_surface = font.render(text,False,color)
+    text_rect = text_surface.get_rect(center = (x,y))
+    screen.blit(text_surface,text_rect)
+
+
 def kast(x,y,x1,y1,color):
     kast_surface = pygame.Surface((x,y))
     kast_surface.fill(color)
     screen.blit(kast_surface,(x1,y1))
 
+exittext_surface = font3.render("Exit",False,"Black") #Selleks, et Exiti nupust rect argument tuleks, kirjutan selle eraldi välja
+exittext_rect = exittext_surface.get_rect(center = (550,700))
 
 #vaenlased
 bat_fly1 = pygame.image.load('pildid/Maincharacters/bat_fly.png')
@@ -320,7 +328,6 @@ game_active = False
 
 obstacle_timer = pygame.USEREVENT + 1 #+1 vaja selleks, kuna pygame endal ka vaja evente.
 pygame.time.set_timer(obstacle_timer,1900)
-
 bee_animation_timer = pygame.USEREVENT + 2
 pygame.time.set_timer(bee_animation_timer,300)
 bat_animation_timer = pygame.USEREVENT + 3
@@ -365,6 +372,10 @@ while True:
                     player.add(Player(3))
                     game_active = True
                     starttime = int(pygame.time.get_ticks()/1000)
+            if exittext_rect.collidepoint(pos):
+                if pygame.mouse.get_pressed() == (True,False,False):
+                    pygame.quit()
+                    exit()
                     
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
@@ -420,9 +431,17 @@ while True:
         screen.blit(player_stand1,playerstand_rect1)
         screen.blit(player_stand2,playerstand_rect2)
         screen.blit(player_stand3,playerstand_rect3)
-        
 
+        kast(700,100,200,50,"Black")
+        kast(680,80,210,60,"#93E9BE")
 
+        text(80,"Rupa Runner",550,99,"Black") #y = 99, et p ära mahuks
+        text(45,"1",416,190,"Black")
+        text(45,"2",566,190,"Black")
+        text(45,"3",716,190,"Black")
+        kast(150,60,475,670,"Black")
+        kast(140,50,480,675,"#93E9BE")
+        screen.blit(exittext_surface,exittext_rect)
         coinpoint = 0
         
 
