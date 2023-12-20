@@ -1,16 +1,11 @@
 # Projekt Rupa, autor Karl Eerik Vaidla
-# Mängu loomiseks on vaadatud erinevaid videoõpetusi
-# 
-#
-
-
-
+# Mängu loomiseks on vaadatud erinevaid videoõpetusi (YT: Clear Code ja Coding with Russ)
+# Allikad README failis
 
 import pygame
 from sys import exit
 from math import ceil
 from random import randint,choice
-from time import sleep
 
 class Player(pygame.sprite.Sprite):
     def __init__(self,playertype):
@@ -186,11 +181,12 @@ class Coin(pygame.sprite.Sprite):
         self.rect.x -= 5
         self.destroy()
 
-
+#Muutujad1
 SCREEN_WIDTH = 1100
 SCREEN_HEIGHT = 800
 FPS = 60
 PLAYER_HEIGHT = 605
+
 #Aja info
 def timer():
     uusaeg = pygame.time.get_ticks() - starttime #Annab aja mängu algusest
@@ -220,7 +216,6 @@ def coincollision():
     else:
         return True
 
-
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
 pygame.display.set_caption("Rupa Runner")
@@ -228,7 +223,6 @@ clock = pygame.time.Clock()
 
 #Sprite grupid
 player = pygame.sprite.GroupSingle() #Kuna Player on ainuke yksus, siis GroupSingle
-
 
 obstacle_group = pygame.sprite.Group() #Kuna mitu yksust, siis vaja Group ning ei kasuta "add" kohe, sest tahame, et timer "triggeriks" obstaclesid
 
@@ -324,14 +318,13 @@ ladybug_walk_surface = ladybug_walk[ladybug_walk_index]
 
 barnacle1 = pygame.image.load('pildid/Maincharacters/barnacle_bite.png')
 
-#Muutujad
+#Muutujad2
 
 
 
 scroll = 0
 coinpoint = 0
 starttime = 0
-gravitatsioon = 0
 game_active = False
 worldmenu_active = False
 
@@ -389,7 +382,10 @@ while True:
                         worldmenu_active = False
                         game_active = True
                         starttime = int(pygame.time.get_ticks()/1000)
-                    
+                if exittext_rect.collidepoint(pos):
+                    if pygame.mouse.get_pressed() == (True,False,False):
+                        pygame.quit()
+                        exit()
 
             else:
                 if playerstand_rect1.collidepoint(pos):
@@ -416,7 +412,6 @@ while True:
                     elif event.key == pygame.K_2:
                         player.add(Player(2))
                         worldmenu_active = True
-                        #starttime = int(pygame.time.get_ticks()/1000)
                     elif event.key == pygame.K_3:
                         player.add(Player(3))
                         worldmenu_active = True
@@ -431,6 +426,7 @@ while True:
                 screen.blit(background22,(i * bg12_width + scroll,0))
                 screen.blit(background32,(i * bg12_width + scroll,0))
         scroll -= 5
+        
         #Resetib scrolli (muidu saab pilt otsa)
         if abs(scroll) > bg11_width:
             scroll = 0
